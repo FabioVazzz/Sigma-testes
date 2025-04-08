@@ -1,0 +1,85 @@
+{% extends 'estoque/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-cart-plus"></i> Recomendações de Compra</h2>
+        <form method="get" class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Buscar recomendações..." aria-label="Search">
+            <button class="btn btn-outline-secondary" type="submit">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Produto</th>
+                        <th>Estoque Atual</th>
+                        <th>Qtd. Recomendada</th>
+                        <th>Motivo</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rec in recomendacoes %}
+                    <tr>
+                        <td>
+                            <strong>{{ rec.produto.nome }}</strong>
+                            <div class="text-muted small">{{ rec.produto.codigo }}</div>
+                        </td>
+                        <td>
+                            <span class="badge {% if rec.produto.quantidade < 10 %}bg-danger{% else %}bg-success{% endif %}">
+                                {{ rec.produto.quantidade }}
+                            </span>
+                        </td>
+                        <td>
+                            <input type="number" 
+                                   class="form-control form-control-sm d-inline-block" 
+                                   name="quantidade_{{ rec.id }}" 
+                                   value="{{ rec.quantidade_recomendada }}" 
+                                   min="1"
+                                   style="width: 80px;">
+                        </td>
+                        <td>
+                            <span class="badge {% if rec.motivo == 'ESTOQUE_BAIXO' %}bg-danger{% else %}bg-primary{% endif %}">
+                                {{ rec.get_motivo_display }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <button type="submit" name="aprovar_{{ rec.id }}" 
+                                    class="btn btn-sm btn-outline-success me-1">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                            <button type="submit" name="rejeitar_{{ rec.id }}" 
+                                    class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Nenhuma recomendação encontrada
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if recomendacoes %}
+        <div class="d-flex justify-content-end mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-send me-2"></i> Enviar para Compras
+            </button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

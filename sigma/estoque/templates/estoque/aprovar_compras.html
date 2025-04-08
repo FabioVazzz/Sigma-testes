@@ -1,0 +1,75 @@
+{% extends 'estoque/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-check-circle"></i> {{ titulo }}</h2>
+        <form method="get" class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Buscar aprovações..." aria-label="Search">
+            <button class="btn btn-outline-secondary" type="submit">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Produto</th>
+                    <th>Estoque Atual</th>
+                    <th>Qtd. Recomendada</th>
+                    <th>Motivo</th>
+                    <th>Status</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rec in recomendacoes %}
+                <tr>
+                    <td>
+                        <strong>{{ rec.produto.nome }}</strong>
+                        <div class="text-muted small">{{ rec.produto.codigo }}</div>
+                    </td>
+                    <td>
+                        <span class="badge {% if rec.produto.quantidade < 10 %}bg-danger{% else %}bg-success{% endif %}">
+                            {{ rec.produto.quantidade }}
+                        </span>
+                    </td>
+                    <td>{{ rec.quantidade_recomendada }}</td>
+                    <td>
+                        <span class="badge {% if rec.motivo == 'ESTOQUE_BAIXO' %}bg-danger{% else %}bg-primary{% endif %}">
+                            {{ rec.get_motivo_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if rec.status == 'PENDENTE' %}
+                            <span class="badge bg-warning text-dark">Pendente</span>
+                        {% elif rec.status == 'APROVADA' %}
+                            <span class="badge bg-success">Aprovada</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ rec.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="#" class="btn btn-sm btn-outline-success me-1">
+                            <i class="bi bi-check-lg"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Nenhuma recomendação encontrada
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
